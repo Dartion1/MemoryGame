@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import {
   Alert,
   Button,
+  FlatList,
+  ImageBackground,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import ScoreDisplay from './src/components/ScoreDisplay';
 
 interface Card {
   id: number;
@@ -18,6 +21,7 @@ interface Card {
 const symbols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 const MemoryGame = () => {
+  const backgroundImg = require('./SnowBI.jpeg');
   const [board, setBoard] = useState<Card[]>(generateBoard());
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
   const [attempts, setAttempts] = useState<number>(0);
@@ -38,16 +42,6 @@ const MemoryGame = () => {
   }
 
   function shuffle(array: any[]): any[] {
-    // let currentIndex = array.length;
-    // let temporaryValue: any, randomIndex: number;
-
-    // while (currentIndex !== 0) {
-    //   randomIndex = Math.floor(Math.random() * currentIndex);
-    //   currentIndex -= 1;
-    //   temporaryValue = array[currentIndex];
-    //   array[currentIndex] = array[randomIndex];
-    //   array[randomIndex] = temporaryValue;
-    // }
     return array.sort(() => Math.random() - 0.5);
   }
 
@@ -102,27 +96,37 @@ const MemoryGame = () => {
     setMatches(0);
   }
 
+  const renderCard = ({item, index}: {item: Card; index: number}) => (
+    <TouchableOpacity
+      style={[
+        styles.card,
+        item.selected && styles.selectedCard,
+        item.matched && styles.matchedCard,
+      ]}
+      onPress={() => handleCardPress(index)}>
+      {item.matched || item.selected ? (
+        <Text style={styles.cardText}>{item.symbol}</Text>
+      ) : null}
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <View style={styles.board}>
-        {board.map((card, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.card,
-              card.selected && styles.selectedCard,
-              card.matched && styles.matchedCard,
-            ]}
-            onPress={() => handleCardPress(index)}>
-            {card.matched || card.selected ? (
-              <Text style={styles.cardText}>{card.symbol}</Text>
-            ) : null}
-          </TouchableOpacity>
-        ))}
-      </View>
-      <Text style={styles.infoText}>Attempts: {attempts}</Text>
-      <Text style={styles.infoText}>Matches: {matches}</Text>
-      <Button title="Restart Game" onPress={restartGame} />
+      <ImageBackground source={backgroundImg}>
+        <View style={styles.top}>
+          <ScoreDisplay title={'Attempts'} score={attempts} />
+          <ScoreDisplay title={'Matches'} score={matches} />
+        </View>
+        <FlatList
+          style={{flex: 1}}
+          data={board}
+          renderItem={renderCard}
+          keyExtractor={item => item.id.toString()}
+          numColumns={4} 
+          contentContainerStyle={styles.board}
+        />
+        <Button title="Restart Game" onPress={restartGame} color={'#2ca8ce'} />
+      </ImageBackground>
     </View>
   );
 };
@@ -133,9 +137,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  board: {
+  top: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  counter: {
+    fontSize: 14,
+  },
+  board: {
+    alignItems: 'center',
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   card: {
     width: 80,
@@ -143,21 +158,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,
-    backgroundColor: '#ccc',
+    backgroundColor: '#8a523a',
     borderRadius: 5,
   },
   cardText: {
     fontSize: 30,
+    color: '#f0dff2',
+    fontWeight: 'bold',
   },
   selectedCard: {
-    backgroundColor: '#34d5eb',
+    backgroundColor: '#b1908b',
   },
   matchedCard: {
-    backgroundColor: '#90ee90', // Light green for matched cards
-  },
-  infoText: {
-    marginTop: 20,
-    fontSize: 20,
+    backgroundColor: '#6bb36b', // Light green for matched cards
   },
 });
 
