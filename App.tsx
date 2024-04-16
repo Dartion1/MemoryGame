@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Button,
   FlatList,
   ImageBackground,
@@ -10,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import ScoreDisplay from './src/components/ScoreDisplay';
-
+import WinModal from './src/components/WinModal';
 interface Card {
   id: number;
   symbol: string;
@@ -19,13 +18,16 @@ interface Card {
 }
 
 const symbols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+const backgroundImg = require('./src/assets/images/SnowBI.jpeg');
+const celibrationAnimation = require('./src/assets/animation/winningAnimation.json');
 
 const MemoryGame = () => {
-  const backgroundImg = require('./SnowBI.jpeg');
   const [board, setBoard] = useState<Card[]>(generateBoard());
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
   const [attempts, setAttempts] = useState<number>(0);
   const [matches, setMatches] = useState<number>(0);
+  const [gameWon, setGameWon] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(true);
 
   function generateBoard(): Card[] {
     const shuffledSymbols = shuffle([...symbols, ...symbols]);
@@ -73,9 +75,8 @@ const MemoryGame = () => {
           setBoard(updatedBoard);
           setSelectedCards([]);
           if (matches === 7) {
-            Alert.alert('Congratulations!', "You've matched all cards!", [
-              {text: 'OK', onPress: restartGame},
-            ]);
+            setModalVisible(true);
+            setGameWon(true);
           }
         }, 500);
       } else {
@@ -94,6 +95,7 @@ const MemoryGame = () => {
     setSelectedCards([]);
     setAttempts(0);
     setMatches(0);
+    setModalVisible(false);
   }
 
   const renderCard = ({item, index}: {item: Card; index: number}) => (
@@ -122,10 +124,15 @@ const MemoryGame = () => {
           data={board}
           renderItem={renderCard}
           keyExtractor={item => item.id.toString()}
-          numColumns={4} 
+          numColumns={4}
           contentContainerStyle={styles.board}
         />
         <Button title="Restart Game" onPress={restartGame} color={'#2ca8ce'} />
+        <WinModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onRestart={restartGame}
+        />
       </ImageBackground>
     </View>
   );
@@ -170,7 +177,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#b1908b',
   },
   matchedCard: {
-    backgroundColor: '#6bb36b', // Light green for matched cards
+    backgroundColor: '#6bb36b',
   },
 });
 
