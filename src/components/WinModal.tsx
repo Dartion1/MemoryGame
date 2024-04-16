@@ -28,10 +28,18 @@ const WinModal: React.FC<WinModalProps> = ({visible, onClose, onRestart}) => {
             }}
           />
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity
+              onPress={onClose}
+              style={{
+                backgroundColor: '#1d8ce0',
+                borderRadius: 8,
+                marginEnd: 20,
+              }}>
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={onRestart}>
+            <TouchableOpacity
+              onPress={onRestart}
+              style={{backgroundColor: '#1d8ce0', borderRadius: 8}}>
               <Text style={styles.buttonText}>Restart</Text>
             </TouchableOpacity>
           </View>
@@ -60,10 +68,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   buttonText: {
-    padding: 20,
+    padding: 10,
     fontWeight: 'bold',
     fontSize: 15,
-    color: '#007BFF',
+    color: '#FFFF',
   },
 });
 

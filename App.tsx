@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  BackHandler,
   Button,
   FlatList,
   ImageBackground,
@@ -8,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ExitConfirmationModal from './src/components/ExitConfirmationModal';
 import ScoreDisplay from './src/components/ScoreDisplay';
 import WinModal from './src/components/WinModal';
 interface Card {
@@ -27,7 +29,29 @@ const MemoryGame = () => {
   const [attempts, setAttempts] = useState<number>(0);
   const [matches, setMatches] = useState<number>(0);
   const [gameWon, setGameWon] = useState<boolean>(false);
-  const [modalVisible, setModalVisible] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [exitConfirmationVisible, setExitConfirmationVisible] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (exitConfirmationVisible) {
+          setExitConfirmationVisible(false);
+          return true; // Prevent default behavior (exit app)
+        } else if (modalVisible) {
+          setModalVisible(false);
+          return true; // Prevent default behavior (close modal)
+        } else {
+          setExitConfirmationVisible(true);
+          return true; // Prevent default behavior (show exit confirmation modal)
+        }
+      },
+    );
+
+    return () => backHandler.remove();
+  }, [exitConfirmationVisible, modalVisible]);
 
   function generateBoard(): Card[] {
     const shuffledSymbols = shuffle([...symbols, ...symbols]);
@@ -98,6 +122,14 @@ const MemoryGame = () => {
     setModalVisible(false);
   }
 
+  function handleExitConfirmed() {
+    BackHandler.exitApp();
+  }
+
+  function handleExitCancelled() {
+    setExitConfirmationVisible(false);
+  }
+
   const renderCard = ({item, index}: {item: Card; index: number}) => (
     <TouchableOpacity
       style={[
@@ -133,6 +165,11 @@ const MemoryGame = () => {
           onClose={() => setModalVisible(false)}
           onRestart={restartGame}
         />
+        <ExitConfirmationModal
+          visible={exitConfirmationVisible}
+          onExitConfirmed={handleExitConfirmed}
+          onExitCancelled={handleExitCancelled}
+        />
       </ImageBackground>
     </View>
   );
@@ -165,7 +202,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,
-    backgroundColor: '#8a523a',
+    backgroundColor: '#136bad',
     borderRadius: 5,
   },
   cardText: {
@@ -174,7 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   selectedCard: {
-    backgroundColor: '#b1908b',
+    backgroundColor: '#87ceeb',
   },
   matchedCard: {
     backgroundColor: '#6bb36b',
