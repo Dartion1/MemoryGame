@@ -23,8 +23,8 @@ const WinModal: React.FC<WinModalProps> = ({visible, onClose, onRestart}) => {
             loop
             autoPlay
             style={{
-              width: 200,
-              height: 200,
+              width: 300,
+              height: 300,
             }}
           />
           <View style={styles.buttonContainer}>
@@ -39,7 +39,11 @@ const WinModal: React.FC<WinModalProps> = ({visible, onClose, onRestart}) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onRestart}
-              style={{backgroundColor: '#1d8ce0', borderRadius: 8}}>
+              style={{
+                backgroundColor: '#1d8ce0',
+                borderRadius: 8,
+                marginStart: 8,
+              }}>
               <Text style={styles.buttonText}>Restart</Text>
             </TouchableOpacity>
           </View>
@@ -57,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#b0b9e7',
+   // backgroundColor: '#EEDCF2',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',

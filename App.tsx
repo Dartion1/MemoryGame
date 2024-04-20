@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import {
   BackHandler,
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 import ExitConfirmationModal from './src/components/ExitConfirmationModal';
 import ScoreDisplay from './src/components/ScoreDisplay';
+import UserNameModal from './src/components/UserNameModal';
 import WinModal from './src/components/WinModal';
 interface Card {
   id: number;
@@ -30,9 +32,42 @@ const MemoryGame = () => {
   const [matches, setMatches] = useState<number>(0);
   const [gameWon, setGameWon] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [userName, setuserName] = useState<any>('');
   const [exitConfirmationVisible, setExitConfirmationVisible] =
     useState<boolean>(false);
+  const [nameModalVisible, setNameModalVisible] = useState<boolean>(false);
 
+  useEffect(() => {
+    console.log('h');
+    const getData = async () => {
+      try {
+        const value = await AsyncStorage.getItem('userName');
+        setuserName(value);
+        console.log('value: ', value);
+        if (value !== null) {
+          // value previously stored
+          console.log('NO');
+        } else {
+          setNameModalVisible(true);
+          console.log('yu');
+        }
+      } catch (e) {
+        console.log('ERROR', e);
+      }
+    };
+    getData();
+  }, []);
+
+  // const handleOpenModal = () => {
+  //   setNameModalVisible(true);
+  // };
+
+  const handleCloseModal = async (username: any) => {
+    console.log('username: ', username);
+    setuserName(username);
+    await AsyncStorage.setItem('userName', username);
+    setNameModalVisible(false);
+  };
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -149,6 +184,15 @@ const MemoryGame = () => {
       <ImageBackground source={backgroundImg}>
         <View style={styles.top}>
           <ScoreDisplay title={'Attempts'} score={attempts} />
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#F76A00',
+              fontFamily: 'serif',
+            }}>
+            {userName}
+          </Text>
           <ScoreDisplay title={'Matches'} score={matches} />
         </View>
         <FlatList
@@ -170,6 +214,7 @@ const MemoryGame = () => {
           onExitConfirmed={handleExitConfirmed}
           onExitCancelled={handleExitCancelled}
         />
+        <UserNameModal visible={nameModalVisible} onClose={handleCloseModal} />
       </ImageBackground>
     </View>
   );
@@ -202,7 +247,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 5,
-    backgroundColor: '#136bad',
+    backgroundColor: '#FF8682',
     borderRadius: 5,
   },
   cardText: {
@@ -211,7 +256,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   selectedCard: {
-    backgroundColor: '#87ceeb',
+    backgroundColor: '#FA4C44',
   },
   matchedCard: {
     backgroundColor: '#6bb36b',
